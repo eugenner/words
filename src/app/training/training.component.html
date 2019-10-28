@@ -1,0 +1,55 @@
+<div class="container-fluid mt-3">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="progress">
+        <div class="progress-bar" [ngStyle]="{'width.%': progress}">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="row">
+        <div class="col-md-6">
+
+            <div *ngIf="trainingLoop" class="justify-content-center pt-2" style="display: flex;">
+              <div class="alert alert-primary" role="alert" *ngIf="trainingLoop.trainingSets.length !== 0">Cards to learn
+                <span class="badge badge-light">{{ trainingLoop.trainingSets.length }}</span>
+              </div>
+              <button type="button" class="btn btn-md" *ngIf="trainingLoop.trainingSets.length === 0">
+                  <button (click)="onContinueClick()">Continue</button>
+                </button>
+              </div>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card" style="min-width: 50%;">
+          <h3 class="card-header">
+            <div *ngIf="currentMemoryWord" style="text-align: center;">
+              <button type="button" class="btn btn-outline-secondary mr-2" placement="right" triggers="click:blur"
+                ngbTooltip="{{currentAnswerWord.word}}" [@applaud]="answerApplaud">
+                {{ currentMemoryWord.word }}
+              </button>
+            </div>
+
+          </h3>
+          <div class="card-body">
+            <div class="list-group" *ngIf="screenAnswers" >
+              <button *ngFor="let screenAnswer of screenAnswers; index as i"
+               (click)="onTranslateClick(screenAnswer)" id="{{i}}"
+                [@applaud]="screenAnswer.applaud"
+                [@shake]="screenAnswer.state">{{ screenAnswer.word }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>

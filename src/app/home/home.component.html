@@ -1,0 +1,20 @@
+<div id="home_user_card" class="container-fluid" *ngIf="isLoggedIn()">
+    <div class="row">
+            <div class="col-md-12">
+                <img src={{getUserPic()}} style="width: 10%;"  />
+                <p>{{userData?.displayName}}</p>
+            </div>
+    </div>
+	<div class="row">
+		<div class="col-md-12">
+            <p id="last_login" class="text-left text-muted">Last login at: {{getLastLoginDate()}}</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<button type="button" (click)='logout()' class="btn disabled btn-block btn-md btn-outline-primary">
+				Logout
+			</button>
+		</div>
+	</div>
+</div>
