@@ -1,7 +1,56 @@
 var express = require('express');
 var router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
+var checkIfAuthenticated = require('../auth-middleware');
 
+
+// Promise helper
+// TODO put all doubled functions in one place
+function AwaitAsyncPromiseHelper(db) {
+
+  db.getAsync = function (sql, params) {
+    var that = this;
+    return new Promise(function (resolve, reject) {
+      if (!params) params = [];
+      that.get(sql, params, function (err, row) {
+        if (err)
+          reject(err);
+        else
+          resolve(row);
+      });
+    });
+  };
+
+  db.runAsync = function (sql, params) {
+    var that = this;
+    return new Promise(function (resolve, reject) {
+      if (!params) params = [];
+      that.run(sql, params, function (err) {
+        if (err)
+          reject(err);
+        else
+          resolve(this.lastID);
+      });
+    });
+  };
+
+  db.allAsync = function (sql, params) {
+    var that = this;
+    return new Promise(function (resolve, reject) {
+      if (!params) params = [];
+      that.all(sql, params, function (err, rows) {
+        if (err)
+          reject(err);
+        else
+          resolve(rows);
+      });
+    });
+  };
+
+  return db;
+}
+
+// TODO put all doubled functions in one place
 function close(db) {
   db.close((err) => {
     if (err) {
@@ -10,6 +59,24 @@ function close(db) {
     console.log('Close the database connection.');
   });
 }
+
+// TODO put all doubled functions in one place
+async function getUserInfo(db, userUid) {
+  // find User info (if not found - create user)
+  var userInfo = await db.getAsync(`select * from user u where u.google_uid = ?`, [userUid]);
+  return userInfo;
+}
+
+// update User Preferences
+router.get('/preferences/update/:data', checkIfAuthenticated, function (req, res, next) {
+  console.log("p: " + req.params['data']);
+  updateUserPreferences(req, res);
+});
+
+// get User Preferences
+router.get('/preferences/get', checkIfAuthenticated, function (req, res, next) {
+  getUserPreferences(req, res);
+});
 
 /* create/select User data */
 router.get('/userUid/:userUid', function(req, res, next) {
@@ -63,5 +130,56 @@ router.get('/userUid/:userUid', function(req, res, next) {
 
 
 });
+
+async function getUserPreferences(req, res) {
+  var userUid = req.authId;
+
+  let db = new sqlite3.Database('./word.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Connected to the chinook database.');
+  });
+  
+  db = AwaitAsyncPromiseHelper(db);
+
+  // find User info (if not found - create user)
+  var userInfo = await getUserInfo(db, userUid);
+  console.log('read preferences: ' + userInfo['preferences']);
+  res.json(JSON.parse(userInfo['preferences']));
+}
+
+async function updateUserPreferences(req, res) {
+  var userUid = req.authId;
+  var preferencesData = JSON.parse(req.params['data'].substr(5));
+
+  console.log('update: data: ' + JSON.stringify(preferencesData));
+
+  let db = new sqlite3.Database('./word.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Connected to the chinook database.');
+  });
+
+  db = AwaitAsyncPromiseHelper(db);
+
+  // find User info (if not found - create user)
+  var userInfo = await getUserInfo(db, userUid);
+
+  console.log('userInfo: ' + JSON.stringify(userInfo));
+
+  if(userInfo) {
+    await db.runAsync(`update user set preferences = json(?)
+      where id = ?`, [JSON.stringify(preferencesData), userInfo['id']]);
+  }
+
+  result = await getUserInfo(db, userUid);
+
+  res.json(result['preferences']);
+
+  close(db);
+
+}
 
 module.exports = router;

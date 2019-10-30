@@ -14,7 +14,7 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard]},
   { path: 'training', component: TrainingComponent, canActivate: [AuthGuard]},
   // { path: 'training', loadChildren: () => import('./training/training.module').then(mod => mod.TrainingModule)},
-  { path: 'settings', component: SettingsComponent },
+  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent, canActivate: [] },
   { path: '',  redirectTo: '/home', pathMatch: 'prefix' },
   { path: '**',   redirectTo: '/home', pathMatch: 'prefix' }

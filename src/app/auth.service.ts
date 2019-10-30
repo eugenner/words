@@ -33,7 +33,7 @@ export class AuthService {
     });
 
     this.afAuth.idToken.subscribe((idToken) => {
-      console.log('idToken: ' + idToken);
+      // console.log('idToken: ' + idToken);
       this.idToken = idToken;
     });
   }

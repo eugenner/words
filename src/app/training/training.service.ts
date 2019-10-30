@@ -15,13 +15,6 @@ export class TrainingService {
   nodeServerAddress = environment.backendIp;
   userId: number;
 
-  static getTrainingSets(): Observable<Array<TrainingSet>> {
-    const tl = new TrainingLoop();
-
-    return of(tl.trainingSets).pipe();
-  }
-
-
   constructor(private http: HttpClient) {
 
   }
@@ -36,12 +29,6 @@ export class TrainingService {
     console.log('id: ' + id + ' lang: ' + lang)
     const url = `${this.nodeServerAddress}:3000/training/fakeAnswers/${id}/lang/${lang}`;
     return this.http.get<Array<Word>>(url);
-  }
-
-  private getTrainingSet(): TrainingSet {
-    // TODO
-
-    return new TrainingSet();
   }
 
   public updateUserProgress(word: Word, cnt: Number): Observable<any> {

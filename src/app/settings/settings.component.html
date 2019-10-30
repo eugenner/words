@@ -1,2 +1,25 @@
-<p>settings works!</p>
-<mv-slider [(value)]="value" [min]="1" [max]="100" [enabled]="enabled" (change)="change()"></mv-slider>
+<div class="jumbotron bg-transparent">
+    <mat-grid-list cols="1" rowHeight="100px">
+        <mat-grid-tile>
+            <mat-card>
+                <mat-card-title>Language pair for training</mat-card-title>
+                <mat-card-content>
+                    <mat-radio-group [(ngModel)]="favoriteLangCouple">
+                        <mat-radio-button *ngFor="let langCouple of langCouples" 
+                            [value]="langCouple">
+                            {{langCouple}}
+                        </mat-radio-button>
+                    </mat-radio-group>
+                </mat-card-content>
+            </mat-card>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <mat-card>
+                <mat-card-title>Words per training loop</mat-card-title>
+                <mat-card-content>
+                    <mat-slider [thumbLabel]="true" [(ngModel)]="wordsPerLoop" min="1" max="15" step="1"></mat-slider>{{ wpLoop }}
+                </mat-card-content>
+            </mat-card>
+        </mat-grid-tile>
+    </mat-grid-list>
+</div>

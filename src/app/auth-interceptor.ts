@@ -8,7 +8,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     const jwt = JSON.parse(localStorage.getItem('user')).stsTokenManager.accessToken;
-    console.log('jwt: ' + jwt);
+    // console.log('jwt: ' + jwt);
     if (!!jwt) {
      req = req.clone({
        setHeaders: {
