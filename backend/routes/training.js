@@ -50,7 +50,12 @@ router.get('/progress/word/:wordId/cnt/:cnt', checkIfAuthenticated, function (re
 });
 
 // next Fake Answers
-router.get('/fakeAnswers/:wordId/lang/:lang', function (req, res, next) {
+router.get('/fakeAnswers/:wordId/lang/:lang', checkIfAuthenticated, function (req, res, next) {
+  fakeAnswers(req, res);
+});
+
+async function fakeAnswers(req, res) {
+  var userUid = req.authId;
   var wordId = req.params['wordId'];
   var lang = req.params['lang'];
 
@@ -61,36 +66,26 @@ router.get('/fakeAnswers/:wordId/lang/:lang', function (req, res, next) {
     console.log('Connected to the chinook database.');
   });
 
-  db.serialize(() => {
+  db = AwaitAsyncPromiseHelper(db);
 
-    // fake answers excluding current word
-    db.all(`
-    select w.* from word w
+  var userInfo = await getCreateUserInfo(db, userUid);
+  var fakeAnswers = JSON.parse(userInfo['preferences']).fakeAnswers;
+
+  var fakeAnswersRows = await db.allAsync(`
+      select w.* from word w
       where w.lang = ? and w.id <> ?
       
-      limit 10
-      `, [lang, wordId], (err, rows) => {
-      if (!err) {
+      limit ?`, [lang, wordId, fakeAnswers]);
+  res.json(fakeAnswersRows);
 
-        res.json(rows);
-
-        db.close((err) => {
-          if (err) {
-            console.error(err.message);
-          }
-          console.log('Close the database connection.');
-        });
-
-
-
-      } else {
-        console.error(err.message);
-      }
-    });
+  db.close((err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Close the database connection.');
   });
 
-});
-
+}
 
 // User Progress update
 router.post('/update/:id', function (req, res, next) {
@@ -225,10 +220,7 @@ async function updateUserProgress(req, res) {
 // lang_of_learn, lang_of_translate
 async function trainingLoopInit(req, res) {
   var userUid = req.authId;
-  var langsCouple = req.params['langsCouple'];
-  var lang_of_learn = langsCouple.substr(0, 2);
-  var lang_of_translate = langsCouple.substr(3, 2);
-  console.log('lang_of_learn: ' + lang_of_learn + " lang_of_translate: " + lang_of_translate);
+
   applyRules();
 
   var trainingLoop = { trainingSets: [] };
@@ -244,28 +236,37 @@ async function trainingLoopInit(req, res) {
   db = AwaitAsyncPromiseHelper(db);
   var userInfo = await getCreateUserInfo(db, userUid);
 
+  var langPair = JSON.parse(userInfo['preferences']).langPair;
+  var loopSize = JSON.parse(userInfo['preferences']).wordsPerLoop;
+  console.log('langPair: ' + langPair);
+  var lang_of_learn = langPair.split('-')[0];
+  var lang_of_translate = langPair.split('-')[1];
+  console.log('lang_of_learn: ' + lang_of_learn + " lang_of_translate: " + lang_of_translate);
+
   var blockRows1 = await db.allAsync(`
         select w.*, wt.id wt_id, wt.word wt_word, wt.lang wt_lang 
           from word w
           join user_progress up on up.word_id = w.id and up.cnt_error > up.cnt_success
-          join word wt on w.link_id = wt.link_id and wt.lang = 'ru'
-          where w.lang = 'en' and up.user_id = ?
+          join word wt on w.link_id = wt.link_id and wt.lang = ?
+          where w.lang = ? and up.user_id = ?
           order by wt.frequency
-          limit 3
-          `, [userInfo['id']]);
+          limit ?
+          `, [lang_of_translate, lang_of_learn, userInfo['id'], loopSize]);
+
+  var restLimit = loopSize - blockRows1.length;
 
   var blockRows2 = await db.allAsync(`
       select w.*, wt.id wt_id, wt.word wt_word, wt.lang wt_lang 
       from word w
-        join word wt on w.link_id = wt.link_id and wt.lang = 'ru'
-        where w.lang = 'en' 
+        join word wt on w.link_id = wt.link_id and wt.lang = ?
+        where w.lang = ? 
         and w.id not in (
           select up.word_id 
           from user_progress up 
           where up.user_id = ?)
           order by wt.frequency
-        limit 3
-        `, [userInfo['id']]);
+        limit ?
+        `, [lang_of_translate, lang_of_learn, userInfo['id'], restLimit]);
 
   var blockRows = new Set([...blockRows1, ...blockRows2]);
 

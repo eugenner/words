@@ -4,6 +4,7 @@ import { auth } from 'firebase/app';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
+import { SettingsService } from './settings/settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,8 @@ export class AuthService {
     public afs: AngularFirestore,   // Inject Firestore service
     public afAuth: AngularFireAuth, // Inject Firebase auth service
     public router: Router,
-    public ngZone: NgZone // NgZone service to remove outside scope warning
+    public ngZone: NgZone, // NgZone service to remove outside scope warning
+    private settingsService: SettingsService
   ) {
     /* Saving user data in localstorage when 
     logged in and setting up null when logged out */
@@ -25,17 +27,28 @@ export class AuthService {
       if (user) {
         this.userData = user;
         localStorage.setItem('user', JSON.stringify(this.userData));
-        console.log(JSON.parse(localStorage.getItem('user')));
+
+        this.settingsService.createUpdateUser().subscribe((data) => {
+          if (data['userInfo'] === 'newUser') {
+            console.log('run settings navigation');
+            this.router.navigate(['settings']);
+          } else {
+            console.log('run home navigation');
+            this.router.navigate(['home']);
+          }
+        });
+
+
       } else {
         localStorage.setItem('user', null);
-        JSON.parse(localStorage.getItem('user'));
+        JSON.parse(localStorage.getItem('user'));  // TODO why I need this line?
       }
     });
 
-    this.afAuth.idToken.subscribe((idToken) => {
-      // console.log('idToken: ' + idToken);
-      this.idToken = idToken;
-    });
+    // this.afAuth.idToken.subscribe((idToken) => {
+    //   // console.log('idToken: ' + idToken);
+    //   this.idToken = idToken;
+    // });
   }
 
   /*
@@ -90,9 +103,9 @@ export class AuthService {
   }
 
   // Sign in with Google
-  GoogleAuth() {
+  googleAuth() {
     console.log('run GoogleAuth');
-    return this.AuthLogin(new auth.GoogleAuthProvider());
+    return this.authLogin(new auth.GoogleAuthProvider());
   }
 
   // Auth logic to run auth providers
@@ -100,13 +113,11 @@ export class AuthService {
   // * flow.
   // *
   // * If succeeds, returns the signed in user along with the provider's credential.
-  AuthLogin(provider) {
+  authLogin(provider) {
     return this.afAuth.auth.signInWithPopup(provider)
       .then((result) => {
         this.ngZone.run(() => {
           this.SetUserData(result);
-          console.log('run home navigation');
-          this.router.navigate(['home']);
         });
       }).catch((error) => {
         window.alert(error);
@@ -117,10 +128,10 @@ export class AuthService {
   sign up with username/password and sign in with social auth  
   provider in Firestore database using AngularFirestore + AngularFirestoreDocument service */
   SetUserData(result) {
-    console.log('got result: ' + JSON.stringify(result));
+    // console.log('got result: ' + JSON.stringify(result));
     const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${result.user.uid}`);
 
-    console.log('lastLoginAt: ' + result.user.lastLoginAt);
+    // console.log('lastLoginAt: ' + result.user.lastLoginAt);
 
     // attention!: local constant userData != this.userData (class scope)
     const userData: User = {
@@ -140,7 +151,7 @@ export class AuthService {
   SignOut() {
     return this.afAuth.auth.signOut().then(() => {
       localStorage.removeItem('user');
-      this.router.navigate(['sign-in']);
+      this.router.navigate(['login']);
     });
   }
 

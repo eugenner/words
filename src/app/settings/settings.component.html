@@ -1,25 +1,33 @@
 <div class="jumbotron bg-transparent">
-    <mat-grid-list cols="1" rowHeight="100px">
-        <mat-grid-tile>
-            <mat-card>
-                <mat-card-title>Language pair for training</mat-card-title>
-                <mat-card-content>
-                    <mat-radio-group [(ngModel)]="favoriteLangCouple">
-                        <mat-radio-button *ngFor="let langCouple of langCouples" 
-                            [value]="langCouple">
-                            {{langCouple}}
-                        </mat-radio-button>
-                    </mat-radio-group>
-                </mat-card-content>
-            </mat-card>
-        </mat-grid-tile>
-        <mat-grid-tile>
-            <mat-card>
-                <mat-card-title>Words per training loop</mat-card-title>
-                <mat-card-content>
-                    <mat-slider [thumbLabel]="true" [(ngModel)]="wordsPerLoop" min="1" max="15" step="1"></mat-slider>{{ wpLoop }}
-                </mat-card-content>
-            </mat-card>
-        </mat-grid-tile>
-    </mat-grid-list>
+
+    <mat-card>
+        <mat-card-title>Language pair for training</mat-card-title>
+        <mat-card-content>
+            <mat-radio-group [(ngModel)]="favoriteLangCouple">
+                <mat-radio-button *ngFor="let langCouple of langCouples" [value]="langCouple">
+                    {{langCouple}}
+                </mat-radio-button>
+            </mat-radio-group>
+        </mat-card-content>
+    </mat-card>
+    <mat-card>
+        <mat-card-title>Words per training loop</mat-card-title>
+        <mat-card-content>
+            <mat-slider [thumbLabel]="true" [(ngModel)]="wordsPerLoop" min="1" max="15" step="1"></mat-slider>
+            {{ wpLoop }}
+        </mat-card-content>
+    </mat-card>
+    <mat-card>
+            <mat-card-title>Words for answer options</mat-card-title>
+            <mat-card-content>
+                <mat-slider [thumbLabel]="true" [(ngModel)]="fakeAnswers" min="1" max="15" step="1"></mat-slider>
+                {{ fAnswers }}
+            </mat-card-content>
+        </mat-card>
+    <mat-card>
+        <mat-card-title></mat-card-title>
+        <mat-card-content>
+            <button mat-raised-button [disabled] = "btnSaveDisabled" (click)="save()">Save</button>
+        </mat-card-content>
+    </mat-card>
 </div>

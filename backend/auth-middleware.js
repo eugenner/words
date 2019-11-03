@@ -1,6 +1,7 @@
 var admin = require('./firebase-service');
 
 const getAuthToken = (req, res, next) => {
+  
   if (
     req.headers.authorization &&
     req.headers.authorization.split(' ')[0] === 'Bearer'
@@ -17,9 +18,15 @@ const checkIfAuthenticated = (req, res, next) => {
     try {
       const { authToken } = req;
       const userInfo = await admin.auth().verifyIdToken(authToken);
+      // console.log('authToken: ' + JSON.stringify(authToken));
+      // console.log('currentUser: ' + admin.auth().currentUser);
+
+      console.log('userInfo: ' + JSON.stringify(userInfo));
       req.authId = userInfo.uid;
       return next();
     } catch (e) {
+      console.log('e: ' + e);
+
       return res
         .status(401)
         .send({ error: 'You are not authorized to make this request' });

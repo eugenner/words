@@ -73,6 +73,11 @@ router.get('/preferences/update/:data', checkIfAuthenticated, function (req, res
   updateUserPreferences(req, res);
 });
 
+// create/update User
+router.get('/createupdate', checkIfAuthenticated, function (req, res, next) {
+  createUpdateUser(req, res);
+});
+
 // get User Preferences
 router.get('/preferences/get', checkIfAuthenticated, function (req, res, next) {
   getUserPreferences(req, res);
@@ -131,6 +136,31 @@ router.get('/userUid/:userUid', function(req, res, next) {
 
 });
 
+async function createUpdateUser(req, res) {
+  var userUid = req.authId;
+
+  console.log('createUpdateUser: userUid: ' + userUid);
+  let db = new sqlite3.Database('./word.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Connected to the chinook database.');
+  });
+
+  // TODO use in-memory database for refreshTokens store
+  db = AwaitAsyncPromiseHelper(db);
+  var userInfo = await getUserInfo(db, userUid);
+  console.log('found userInfo: ' + JSON.stringify(userInfo));
+  if (userInfo) {
+    res.json({userInfo: 'existedUser'});
+  } else {
+    var newUserId = await db.runAsync(`INSERT INTO user(google_uid) VALUES(?)`, [userUid]);
+    userInfo = await db.getAsync(`select * from user u where u.id = ?`, [newUserId]);
+    res.json({userInfo: 'newUser'});
+  }
+  
+}
+
 async function getUserPreferences(req, res) {
   var userUid = req.authId;
 
@@ -143,7 +173,7 @@ async function getUserPreferences(req, res) {
   
   db = AwaitAsyncPromiseHelper(db);
 
-  // find User info (if not found - create user)
+  // find User info 
   var userInfo = await getUserInfo(db, userUid);
   console.log('read preferences: ' + userInfo['preferences']);
   res.json(JSON.parse(userInfo['preferences']));

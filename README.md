@@ -5,9 +5,16 @@ UI:
     + 2. Settings - number of words in Loop
     3. End of loop - hide word's table, (show some stat?)
     4. After first login
-        1. create user in the backend's db 
-        2. redirect to Settings page
+        + 1. create user in the backend's db 
+        + 2. redirect to Settings page // TODO check stability of redirection
         3. Route to Training page should check if Settings is not empty
+        4. use Settings for Training 
+    5. Save results after full TrainingLoop only. To prevent overhead of requests to server.
+Backend:
+    1. Change logic of UserProgress 
+        1. Should be saved only vrong answers and current frequency position for each language.
+            If vrong answer answered successful it should be deleted from UserProgress, so storage will be minimum.
+    2. Support UI: 5.
 
 + 1. User social login
     1. Refresh token after expire
@@ -57,5 +64,3 @@ add swap:
 iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 npx ng serve --host=natasha-murasha.com --port=80 --prod 
 
-# words
-# words

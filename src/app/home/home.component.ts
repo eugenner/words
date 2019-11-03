@@ -1,6 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
+import { SettingsService } from '../settings/settings.service';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +12,7 @@ export class HomeComponent implements OnInit {
 
   userData: any;
 
-  constructor(public authService: AuthService, public router: Router, public ngZone: NgZone) {
+  constructor(public authService: AuthService, public router: Router, public ngZone: NgZone, private settingsService: SettingsService) {
     this.userData = this.authService.userData;
   }
 

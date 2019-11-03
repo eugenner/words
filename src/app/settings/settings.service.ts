@@ -13,6 +13,12 @@ export class SettingsService {
 
   constructor(private http: HttpClient) { }
 
+  public createUpdateUser(): Observable<any> {
+    const url = `${this.nodeServerAddress}:3000/users/createupdate`;
+
+    return this.http.get(url).pipe(catchError(this.handleError));
+  }
+
   public updateUserPreferences(data: any): Observable<any> {
     data = JSON.stringify(data);
     const url = `${this.nodeServerAddress}:3000/users/preferences/update/json=${data}`;

@@ -1,4 +1,3 @@
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, OnInit } from '@angular/core';
 import { SettingsService } from './settings.service';
 
@@ -9,10 +8,20 @@ import { SettingsService } from './settings.service';
 })
 export class SettingsComponent implements OnInit {
   wpLoop = 0;
-  fLangCouple = 'ru-en';
+  fAnswers = 0;
+  fLangCouple = null;
   langCouples = ['ru-en', 'en-ru'];
+  btnSaveDisabled = true;
 
   constructor(private settingsSevice: SettingsService) { }
+
+  get fakeAnswers(): any {
+    return this.fAnswers;
+  }
+
+  set fakeAnswers(value) {
+    this.fAnswers = value;
+  }
 
   get favoriteLangCouple(): any {
     return this.fLangCouple;
@@ -20,7 +29,6 @@ export class SettingsComponent implements OnInit {
 
   set favoriteLangCouple(value) {
     this.fLangCouple = value;
-    this.updateUserPreferences();
   }
 
   get wordsPerLoop(): any {
@@ -29,6 +37,10 @@ export class SettingsComponent implements OnInit {
 
   set wordsPerLoop(value) {
     this.wpLoop = value;
+  }
+
+  save() {
+    this.btnSaveDisabled = true;
     this.updateUserPreferences();
   }
 
@@ -36,17 +48,28 @@ export class SettingsComponent implements OnInit {
     this.settingsSevice.getUserPreferences().subscribe((data) => {
       console.log('getUserPreferences: ' + JSON.stringify(data));
 
-      if (Object.keys(data).length > 0) {
+      if (data != null && typeof(data) === 'object' && Object.keys(data).length > 0) {
         this.wordsPerLoop = data['wordsPerLoop'];
         this.fLangCouple = data['langPair'];
+        this.fAnswers = data['fakeAnswers'];
       }
+      this.btnSaveDisabled = false;
     });
+
   }
 
   updateUserPreferences() {
-    const data = { wordsPerLoop: this.wpLoop, langPair: this.fLangCouple };
+    const data = { wordsPerLoop: this.wpLoop,
+      langPair: this.fLangCouple, fakeAnswers: this.fAnswers };
     this.settingsSevice.updateUserPreferences(data).subscribe((userPreferences) => {
-      // TODO update values from response
+      const up = JSON.parse(userPreferences);
+      // TODO update values from response?
+      setTimeout(() => {
+        this.fLangCouple = up.langPair;
+        this.wpLoop = up.wordsPerLoop;
+        this.fAnswers = up.fakeAnswers;
+        this.btnSaveDisabled = false;
+      }, 1000);
     });
   }
 
