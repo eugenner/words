@@ -1,40 +1,30 @@
-import { AuthService } from './auth.service';
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, throwError } from 'rxjs';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from './services/auth.service';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, take, switchMap } from 'rxjs/operators';
 
 @Injectable()
-export class AuthInterceptor implements HttpInterceptor {
+export class TokenInterceptor implements HttpInterceptor {
 
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   constructor(public authService: AuthService) { }
 
-  intercept(request: HttpRequest<any>, next: HttpHandler) {
-  //   const jwt = JSON.parse(localStorage.getItem('user')).stsTokenManager.accessToken;
-  //   // console.log('jwt: ' + jwt);
-  //   if (!!jwt) {
-  //    request = request.clone({
-  //      setHeaders: {
-  //        Authorization: `Bearer ${jwt}`
-  //      }
-  //    });
-  //  }
-  if (this.authService.getAccessToken()) {
-    request = this.addToken(request, this.authService.getAccessToken());
-  }
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-  //  return next.handle(request);
-  return next.handle(request).pipe(catchError(error => {
-    if (error instanceof HttpErrorResponse && error.status === 401) {
-      return this.handle401Error(request, next);
-    } else {
-      return throwError(error);
+    if (this.authService.getJwtToken()) {
+      request = this.addToken(request, this.authService.getJwtToken());
     }
-  }));
 
+    return next.handle(request).pipe(catchError(error => {
+      if (error instanceof HttpErrorResponse && error.status === 401) {
+        return this.handle401Error(request, next);
+      } else {
+        return throwError(error);
+      }
+    }));
   }
 
   private addToken(request: HttpRequest<any>, token: string) {
@@ -53,12 +43,10 @@ export class AuthInterceptor implements HttpInterceptor {
       return this.authService.refreshToken().pipe(
         switchMap((token: any) => {
           this.isRefreshing = false;
-
-          console.log('refreshing token: ' + JSON.stringify(token));
-
           this.refreshTokenSubject.next(token.jwt);
           return next.handle(this.addToken(request, token.jwt));
         }));
+
     } else {
       return this.refreshTokenSubject.pipe(
         filter(token => token != null),

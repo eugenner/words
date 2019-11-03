@@ -5,6 +5,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { SettingsService } from './settings/settings.service';
+import { HttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +21,8 @@ export class AuthService {
     public afAuth: AngularFireAuth, // Inject Firebase auth service
     public router: Router,
     public ngZone: NgZone, // NgZone service to remove outside scope warning
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private http: HttpClient
   ) {
     /* Saving user data in localstorage when 
     logged in and setting up null when logged out */
@@ -153,6 +156,26 @@ export class AuthService {
       localStorage.removeItem('user');
       this.router.navigate(['login']);
     });
+  }
+
+  getAccessToken() {
+    return JSON.parse(localStorage.getItem('user')).stsTokenManager.accessToken;
+  }
+
+  getRefreshToken() {
+    return JSON.parse(localStorage.getItem('user')).stsTokenManager.refreshToken;
+  }
+
+  refreshToken() {
+    const token = this.afAuth.auth.currentUser.getIdToken(true);
+    return of(token);
+
+
+    // return this.http.post<any>(`${config.apiUrl}/refresh`, {
+    //   'refreshToken': this.getRefreshToken()
+    // }).pipe(tap((tokens: Tokens) => {
+    //   this.storeJwtToken(tokens.jwt);
+    // }));
   }
 
 }

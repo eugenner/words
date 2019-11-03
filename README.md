@@ -54,6 +54,9 @@ DB: Word
 Tools:
     https://www.layoutit.com/build
 
+Docs:
+    https://angular-academy.com/angular-jwt/ (Refresh Token)
+
 additional libs:
     https://ng-bootstrap.github.io/#/components/tooltip/examples
     https://material.angular.io/guide/getting-started

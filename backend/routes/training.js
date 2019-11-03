@@ -69,12 +69,12 @@ async function fakeAnswers(req, res) {
   db = AwaitAsyncPromiseHelper(db);
 
   var userInfo = await getCreateUserInfo(db, userUid);
-  var fakeAnswers = JSON.parse(userInfo['preferences']).fakeAnswers;
+  var fakeAnswers = JSON.parse(userInfo['preferences']).fakeAnswers - 1;
 
   var fakeAnswersRows = await db.allAsync(`
       select w.* from word w
       where w.lang = ? and w.id <> ?
-      
+      order by random()
       limit ?`, [lang, wordId, fakeAnswers]);
   res.json(fakeAnswersRows);
 
