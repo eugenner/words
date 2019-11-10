@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, NgZone } from '@angular/core';
 import { TrainingLoop } from '../models/TrainingLoop';
 import { Word } from '../models/Word';
 import { TrainingService } from './training.service';
@@ -12,7 +12,9 @@ import {
   query,
   // ...
 } from '@angular/animations';
-import { delay } from 'rxjs/operators';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { AppComponent } from '../app.component';
 
 @Component({
   selector: 'app-training',
@@ -41,7 +43,7 @@ import { delay } from 'rxjs/operators';
       ]),
     ]),
     trigger('applaud', [
-      state('start', style({backgroundColor: 'green', opacity: 0})),
+      state('start', style({ backgroundColor: 'green', opacity: 0 })),
       state('stop', style({})),
       transition('stop => start', [
         animate('1s')
@@ -63,8 +65,24 @@ export class TrainingComponent implements OnInit {
 
   answerApplaud = 'stop';
 
-  constructor(private trainingService: TrainingService) {
+  constructor(private trainingService: TrainingService, private router: Router, private ngZone: NgZone) {
+
   }
+
+  // ngAfterViewInit() {
+  //   this.router.events
+  //     .pipe(filter(event => event instanceof NavigationEnd))
+  //     .subscribe(() => {
+  //       if (this.router.url === '/training') {
+  //         console.log('navigation end: ' + this.router.url);
+  //         this.ngZone.run(() => {
+  //           setTimeout(() => {
+  //             AppComponent.isNavbarCollapsed = true;
+  //           }, 500);
+  //         });
+  //       }
+  //     });
+  // }
 
   ngOnInit() {
     this.nextTrainingLoop();
@@ -140,14 +158,14 @@ export class TrainingComponent implements OnInit {
   nextTrainingLoop() {
     this.indexOfLeariningWord = -1;
     this.progress = 0;
-      this.trainingService.getTrainingLoop().subscribe(
-        (el) => {
-          this.trainingLoop = el;
-          this.tlMaxCount = this.trainingLoop.trainingSets.length;
-          this.nextWord();
-        },
-        (err) => console.log('err: ' + err)
-      );
+    this.trainingService.getTrainingLoop().subscribe(
+      (el) => {
+        this.trainingLoop = el;
+        this.tlMaxCount = this.trainingLoop.trainingSets.length;
+        this.nextWord();
+      },
+      (err) => console.log('err: ' + err)
+    );
 
   }
 
@@ -170,8 +188,8 @@ export class TrainingComponent implements OnInit {
 
   shuffle(a: Array<any>) {
     for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
   }

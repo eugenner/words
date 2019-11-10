@@ -28,6 +28,9 @@ export class AuthInterceptor implements HttpInterceptor {
 
   //  return next.handle(request);
   return next.handle(request).pipe(catchError(error => {
+
+    // console.log('interceptor error: ' + error);
+
     if (error instanceof HttpErrorResponse && error.status === 401) {
       return this.handle401Error(request, next);
     } else {
@@ -46,15 +49,19 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
+
+    console.log('handle401Error');
     if (!this.isRefreshing) {
+      console.log('start Refreshing');
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
       return this.authService.refreshToken().pipe(
         switchMap((token: any) => {
           this.isRefreshing = false;
+          console.log('stop Refreshing');
 
-          console.log('refreshing token: ' + JSON.stringify(token));
+          // console.log('refreshing token: ' + JSON.stringify(token));
 
           this.refreshTokenSubject.next(token.jwt);
           return next.handle(this.addToken(request, token.jwt));

@@ -1,5 +1,16 @@
 var admin = require('./firebase-service');
 
+function getCounter() {
+  let counter = 0;
+  return function() {
+  	if(counter > 3)
+  		counter = 0;
+    return counter++;
+  }
+}
+
+var counter = getCounter();
+
 const getAuthToken = (req, res, next) => {
   
   if (
@@ -16,6 +27,17 @@ const getAuthToken = (req, res, next) => {
 const checkIfAuthenticated = (req, res, next) => {
  getAuthToken(req, res, async () => {
     try {
+
+      // testing authorization
+      // var c = counter();
+      // console.log('c: ' + c);
+      // if(c === 3) {
+      //   console.log('throw test');
+      //   throw new Error('test');
+      // }
+
+
+
       const { authToken } = req;
       const userInfo = await admin.auth().verifyIdToken(authToken);
       // console.log('authToken: ' + JSON.stringify(authToken));

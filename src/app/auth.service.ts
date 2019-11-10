@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { SettingsService } from './settings/settings.service';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -167,8 +168,16 @@ export class AuthService {
   }
 
   refreshToken() {
+    if (this.afAuth.auth.currentUser === null) {
+      // TODO what to do in such case
+      console.log('this.afAuth.auth.currentUser is null');
+      return;
+    }
+
     const token = this.afAuth.auth.currentUser.getIdToken(true);
-    return of(token);
+    return of(token).pipe(tap((data) => {
+      console.log('getIdToken: ' + JSON.stringify(data));
+    }));
 
 
     // return this.http.post<any>(`${config.apiUrl}/refresh`, {

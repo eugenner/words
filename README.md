@@ -8,8 +8,10 @@ UI:
         + 1. create user in the backend's db 
         + 2. redirect to Settings page // TODO check stability of redirection
         3. Route to Training page should check if Settings is not empty
-        4. use Settings for Training 
+        + 4. use Settings for Training 
     5. Save results after full TrainingLoop only. To prevent overhead of requests to server.
+    6. Short Help / App Description Info
+    
 Backend:
     1. Change logic of UserProgress 
         1. Should be saved only vrong answers and current frequency position for each language.

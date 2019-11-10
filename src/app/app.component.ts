@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +7,22 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
 
+  isNavbarCollapsed: boolean; //class="collapse navbar-collapse"
+  navBarClassList = 'collapse navbar-collapse';
   constructor() {}
+
+  getIsNavbarCollapsed() {
+    return this.isNavbarCollapsed;
+  }
+
+  trainingClick() {
+    console.log('trainingClick: ' + this.isNavbarCollapsed);
+      this.navBarClassList = 'collapse navbar-collapse show';
+      this.isNavbarCollapsed = true;
+  }
+
+  ngOnInit() {
+    this.navBarClassList = 'collapse navbar-collapse hide';
+  }
 
 }
