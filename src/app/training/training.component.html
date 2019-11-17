@@ -10,10 +10,10 @@
 </div>
 
 <div class="container">
-  <div class="row justify-content-center">
+  <div class="row">
     <div class="col"></div>
-    <div class="col-md-auto col-lg-auto justify-content-center" style="display: flex;">
-      <div *ngIf="trainingLoop" class="justify-content-center pt-2" style="display: flex;">
+    <div class="col-md-auto col-lg-auto d-flex justify-content-center">
+      <div *ngIf="trainingLoop" class="pt-3">
         <div class="alert alert-primary" role="alert" *ngIf="trainingLoop.trainingSets.length !== 0">Cards to
           learn
           <span class="badge badge-light">{{ trainingLoop.trainingSets.length }}</span>
@@ -25,9 +25,9 @@
     </div>
     <div class="col"></div>
   </div>
-  <div class="row justify-content-center" *ngIf="trainingLoop && trainingLoop.trainingSets.length !== 0">
+  <div class="row" *ngIf="trainingLoop && trainingLoop.trainingSets.length !== 0">
     <div class="col"></div>
-    <div class="col-md-12 col-lg-auto justify-content-center" style="display: flex;">
+    <div class="col-sm-12 col-lg-auto">
       <div class="card">
         <h3 class="card-header">
           <div *ngIf="currentMemoryWord" style="text-align: center;">

@@ -53,7 +53,10 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "words:build"
+            "browserTarget": "words:build",
+            "ssl": true,
+            "sslKey": "ssl/wordstraining.key",
+            "sslCert": "ssl/wordstraining_site.crt"
           },
           "configurations": {
             "production": {

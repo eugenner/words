@@ -45,3 +45,5 @@ src/environments/environment.prod.ts
 src/environments/environment.ts
 
 backend/service-account-file.json
+
+/ssl

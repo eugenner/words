@@ -8,6 +8,9 @@ var app = require('../app');
 var debug = require('debug')('backend:server');
 var http = require('http');
 var ip = require('ip');
+
+var https = require('https');
+const fs = require('fs');
 /**
  * Get port from environment and store in Express.
  */
@@ -20,7 +23,21 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+// var server = http.createServer(app);
+
+
+/**
+ * HTTPS server.
+ */
+
+var privateKey = fs.readFileSync('../ssl/wordstraining.key', 'utf8');
+var certificate = fs.readFileSync('../ssl/wordstraining_site.crt', 'utf8');
+
+var server = https.createServer({
+    key: privateKey,
+    cert: certificate
+}, app);
+
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -88,4 +105,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log('Listening on ' + bind);
 }
