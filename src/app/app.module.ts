@@ -64,10 +64,11 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatTreeModule} from '@angular/material/tree';
 import { FormsModule } from '@angular/forms';
+import { StatisticsComponent } from './statistics/statistics.component';
 
 @NgModule({
   bootstrap: [AppComponent],
-  declarations: [AppComponent, TrainingComponent, HomeComponent, SettingsComponent, LoginComponent],
+  declarations: [AppComponent, TrainingComponent, HomeComponent, SettingsComponent, LoginComponent, StatisticsComponent],
   imports: [
     BrowserModule,
     HttpClientModule,

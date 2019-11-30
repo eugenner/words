@@ -8,6 +8,7 @@ import { SettingsService } from './settings/settings.service';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,7 @@ export class AuthService {
       if (user) {
         this.userData = user;
         localStorage.setItem('user', JSON.stringify(this.userData));
+        console.log('authState.subscribe: ');
 
         this.settingsService.createUpdateUser().subscribe((data) => {
           if (data['userInfo'] === 'newUser') {
@@ -45,7 +47,7 @@ export class AuthService {
 
       } else {
         localStorage.setItem('user', null);
-        JSON.parse(localStorage.getItem('user'));  // TODO why I need this line?
+        // JSON.parse(localStorage.getItem('user'));  // TODO why I need this line?
       }
     });
 
@@ -53,52 +55,13 @@ export class AuthService {
     //   // console.log('idToken: ' + idToken);
     //   this.idToken = idToken;
     // });
-  }
 
-  /*
-  // Sign in with email/password
-  SignIn(email, password) {
-    return this.afAuth.auth.signInWithEmailAndPassword(email, password)
-      .then((result) => {
-        this.ngZone.run(() => {
-          this.router.navigate(['dashboard']);
-        });
-        this.SetUserData(result.user);
-      }).catch((error) => {
-        window.alert(error.message);
-      });
+    this.afAuth.auth.onIdTokenChanged(function (user) {
+      if (user) {
+        console.log('User is signed in or token was refreshed.');
+      }
+    });
   }
-
-  // Sign up with email/password
-  SignUp(email, password) {
-    return this.afAuth.auth.createUserWithEmailAndPassword(email, password)
-      .then((result) => {
-        // Call the SendVerificaitonMail() function when new user sign up and returns promise 
-        this.SendVerificationMail();
-        this.SetUserData(result.user);
-      }).catch((error) => {
-        window.alert(error.message)
-      });
-  }
-
-  // Send email verfificaiton when new user sign up
-  SendVerificationMail() {
-    return this.afAuth.auth.currentUser.sendEmailVerification()
-      .then(() => {
-        this.router.navigate(['verify-email-address']);
-      });
-  }
-
-  // Reset Forggot password
-  ForgotPassword(passwordResetEmail) {
-    return this.afAuth.auth.sendPasswordResetEmail(passwordResetEmail)
-      .then(() => {
-        window.alert('Password reset email sent, check your inbox.');
-      }).catch((error) => {
-        window.alert(error);
-      });
-  }
-*/
 
   // Returns true when user is looged in and email is verified
   get isLoggedIn(): boolean {
@@ -121,7 +84,7 @@ export class AuthService {
     return this.afAuth.auth.signInWithPopup(provider)
       .then((result) => {
         this.ngZone.run(() => {
-          this.SetUserData(result);
+          this.setUserData(result);
         });
       }).catch((error) => {
         window.alert(error);
@@ -131,11 +94,19 @@ export class AuthService {
   /* Setting up user data when sign in with username/password, 
   sign up with username/password and sign in with social auth  
   provider in Firestore database using AngularFirestore + AngularFirestoreDocument service */
-  SetUserData(result) {
+  setUserData(result: auth.UserCredential) {
     // console.log('got result: ' + JSON.stringify(result));
     const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${result.user.uid}`);
 
     // console.log('lastLoginAt: ' + result.user.lastLoginAt);
+    // class OAuthCredential extends AuthCredential {
+
+
+
+    localStorage.setItem('idToken', (<firebase.auth.OAuthCredential>result.credential).idToken);
+    localStorage.setItem('accessToken', result.user.toJSON()['stsTokenManager'].accessToken);
+    localStorage.setItem('refreshToken', result.user.refreshToken);
+
 
     // attention!: local constant userData != this.userData (class scope)
     const userData: User = {
@@ -158,33 +129,40 @@ export class AuthService {
       this.router.navigate(['login']);
     });
   }
+  getIdToken() {
+    return localStorage.getItem('idToken');
+  }
 
   getAccessToken() {
-    return JSON.parse(localStorage.getItem('user')).stsTokenManager.accessToken;
+    return localStorage.getItem('accessToken');
   }
 
   getRefreshToken() {
-    return JSON.parse(localStorage.getItem('user')).stsTokenManager.refreshToken;
+    return localStorage.getItem('refreshToken');
   }
 
   refreshToken() {
-    if (this.afAuth.auth.currentUser === null) {
-      // TODO what to do in such case
-      console.log('this.afAuth.auth.currentUser is null');
-      return;
-    }
+    const key = environment.firebase.apiKey;
+    const url = `https://securetoken.googleapis.com/v1/token?key=${key}`;
+    const refreshToken = this.getRefreshToken();
+    return this.http.post<any>(url, `grant_type=refresh_token&refresh_token=${refreshToken}`,
+      {headers: {'content-type': 'application/x-www-form-urlencoded'}}).pipe(
 
-    const token = this.afAuth.auth.currentUser.getIdToken(true);
-    return of(token).pipe(tap((data) => {
-      console.log('getIdToken: ' + JSON.stringify(data));
-    }));
+        /*
+        result:
+        {
+          "access_token": string,
+          "expires_in": string,
+          "token_type": string,
+          "refresh_token": string,
+        }
+        */
 
-
-    // return this.http.post<any>(`${config.apiUrl}/refresh`, {
-    //   'refreshToken': this.getRefreshToken()
-    // }).pipe(tap((tokens: Tokens) => {
-    //   this.storeJwtToken(tokens.jwt);
-    // }));
+        tap((result) => {
+            localStorage.setItem('accessToken', result['access_token']);
+            console.log('set new accessToken value');
+        })
+      );
   }
 
 }

@@ -1,3 +1,22 @@
+<div class="container-fluid pt-3" *ngIf="!dontShowAlert">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="alert alert-dismissable alert-info">
+
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true" 
+					(click)="dontShowAlert = true;"
+				>
+					×
+				</button>
+				<h4>
+					Under construction.
+				</h4>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-12">
