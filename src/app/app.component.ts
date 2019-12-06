@@ -1,4 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { HelpComponent } from './help/help.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +11,12 @@ export class AppComponent {
 
   isNavbarCollapsed: boolean; //class="collapse navbar-collapse"
   navBarClassList = 'collapse navbar-collapse';
-  constructor() {}
+
+  constructor(private modalService: NgbModal) {}
+
+  showHelp() {
+    this.modalService.open(HelpComponent, {});
+  }
 
   getIsNavbarCollapsed() {
     return this.isNavbarCollapsed;

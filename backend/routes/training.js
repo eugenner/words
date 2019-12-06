@@ -43,6 +43,12 @@ router.get('/init/lang/:langsCouple', checkIfAuthenticated, function (req, res, 
   trainingLoopInit(req, res);
 });
 
+// update User Progress by Training Loop 
+router.post('/progress/tl', checkIfAuthenticated, function (req, res, next) {
+  getStatistics(req, res);
+  
+});
+
 // update User Progress by word
 router.get('/progress/word/:wordId/cnt/:cnt', checkIfAuthenticated, function (req, res, next) {
   console.log("p: " + req.params['cnt']);
@@ -135,6 +141,36 @@ function AwaitAsyncPromiseHelper(db) {
   };
 
   return db;
+}
+
+async function getStatistics(req, res) {
+  var userUid = req.authId;
+
+  let db = new sqlite3.Database('./word.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Connected to the chinook database.');
+  });
+
+  db = AwaitAsyncPromiseHelper(db);
+
+  var userStatistics = await db.getAsync(
+    `select count(*) as statIndex from user_progress up
+      join user u on u.google_uid = ?
+      join word w on w.id = up.word_id and w.lang = ?
+      and up.user_id = u.id `, [userUid, 'en']);
+
+  console.log("update User Progress by Training Loop: " + JSON.stringify(userStatistics));
+  
+  res.json({'statistics': userStatistics});
+
+  db.close((err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Close the database connection.');
+  });
 }
 
 async function getCreateUserInfo(db, userUid) {

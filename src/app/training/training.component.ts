@@ -15,6 +15,7 @@ import {
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AppComponent } from '../app.component';
+import { StatisticsComponent } from '../statistics/statistics.component';
 
 @Component({
   selector: 'app-training',
@@ -64,6 +65,8 @@ export class TrainingComponent implements OnInit {
   tlMaxCount = 0;
 
   answerApplaud = 'stop';
+  showStatistics = false;
+  statIndex: number;
 
   constructor(private trainingService: TrainingService, private router: Router, private ngZone: NgZone) {
 
@@ -89,6 +92,7 @@ export class TrainingComponent implements OnInit {
     this.progress = 0;
   }
 
+  // show animation on the right answer
   onTranslateClick(word: any): void {
     if (word.link_id === this.currentAnswerWord.link_id) {
       // TODO animation
@@ -121,19 +125,30 @@ export class TrainingComponent implements OnInit {
           if (this.trainingLoop.trainingSets.length > 0) {
             this.trainingLoop.trainingSets.splice(this.indexOfLeariningWord, 1);
             this.indexOfLeariningWord--;
-          } else {
-            // TODO цикл завершен, переход на следующий
-            // TODO show button for continue
           }
         }
         this.nextWord();
       } else {
         this.nextWord();
       }
+
+      if (this.trainingLoop.trainingSets.length === 0) {
+        // TODO Training Loop is ended, update User Progress, show Statistics
+        // TODO show button for continue
+        this.showStatistics = true;
+        this.trainingService.updateUserProgressByTL(this.trainingLoop).subscribe(
+          (result) => {
+            console.log('statistics: ' + JSON.stringify(result));
+            this.statIndex = result.statistics.statIndex;
+          }
+        );
+      }
+
     });
   }
 
   onContinueClick() {
+    this.showStatistics = false;
     this.nextTrainingLoop();
   }
 

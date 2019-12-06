@@ -1,10 +1,10 @@
-import { TrainingSet } from './TrainingSet';
+import { TrainingWordData } from './TrainingWordData';
 
 // Training loop contains collection of Training sets (one word for learning per set)
 export class TrainingLoop {
-    trainingSets: TrainingSet[];
+    trainingSets: TrainingWordData[];
 
     constructor() {
-      this.trainingSets = new Array<TrainingSet>();
+      this.trainingSets = new Array<TrainingWordData>();
     }
 }

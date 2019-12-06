@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { TrainingLoop } from '../models/TrainingLoop';
-import { TrainingSet } from '../models/TrainingSet';
+import { TrainingWordData } from '../models/TrainingWordData';
 import { Word } from '../models/Word';
 import { Observable, of, from, interval, throwError } from 'rxjs';
 import { mergeAll, catchError, tap } from 'rxjs/operators';
@@ -26,9 +26,16 @@ export class TrainingService {
   }
 
   getFakeAnswers(id: Number, lang: String): Observable<Array<Word>> {
-    console.log('id: ' + id + ' lang: ' + lang)
+    console.log('id: ' + id + ' lang: ' + lang);
     const url = `${this.nodeServerAddress}:3000/training/fakeAnswers/${id}/lang/${lang}`;
     return this.http.get<Array<Word>>(url);
+  }
+
+  public updateUserProgressByTL(tl: TrainingLoop): Observable<any> {
+    console.log('updateUserProgressByTL');
+    const url = `${this.nodeServerAddress}:3000/training/progress/tl`;
+
+    return this.http.post(url, tl).pipe(catchError(this.handleError));
   }
 
   public updateUserProgress(word: Word, cnt: Number): Observable<any> {

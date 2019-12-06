@@ -8,7 +8,9 @@
     </div>
   </div>
 </div>
-
+<div *ngIf="showStatistics">
+  <app-statistics [stIndex]="statIndex"></app-statistics>
+</div>
 <div class="container">
   <div class="row">
     <div class="col"></div>
@@ -52,4 +54,3 @@
 
 
 </div>
-<app-statistics></app-statistics>
