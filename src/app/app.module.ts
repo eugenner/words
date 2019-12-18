@@ -66,15 +66,20 @@ import {MatTreeModule} from '@angular/material/tree';
 import { FormsModule } from '@angular/forms';
 import { StatisticsComponent } from './statistics/statistics.component';
 import { HelpComponent } from './help/help.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { LearningComponent } from './learning/learning.component';
 
 @NgModule({
   bootstrap: [AppComponent],
-  declarations: [AppComponent, TrainingComponent, HomeComponent, SettingsComponent, LoginComponent, StatisticsComponent, HelpComponent],
+  declarations: [AppComponent, TrainingComponent, HomeComponent, SettingsComponent, LoginComponent,
+    StatisticsComponent, HelpComponent, LearningComponent],
   entryComponents: [HelpComponent],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
+
+    ReactiveFormsModule,
 
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule, // imports firebase/firestore, only needed for database features

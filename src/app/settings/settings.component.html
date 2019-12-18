@@ -18,16 +18,31 @@
         </mat-card-content>
     </mat-card>
     <mat-card>
-            <mat-card-title>Words for answer options</mat-card-title>
-            <mat-card-content>
-                <mat-slider [thumbLabel]="true" [(ngModel)]="fakeAnswers" min="1" max="15" step="1"></mat-slider>
-                {{ fAnswers }}
-            </mat-card-content>
-        </mat-card>
-    <mat-card>
-        <mat-card-title></mat-card-title>
+        <mat-card-title>Words for answer options</mat-card-title>
         <mat-card-content>
-            <button mat-raised-button [disabled] = "btnSaveDisabled" (click)="save()">Save</button>
+            <mat-slider [thumbLabel]="true" [(ngModel)]="fakeAnswers" min="1" max="15" step="1"></mat-slider>
+            {{ fAnswers }}
+        </mat-card-content>
+    </mat-card>
+    <mat-card>
+        <mat-card-title>Start by vocabulary position (by frequency in percents)</mat-card-title>
+        <mat-card-content>
+            <mat-slider [thumbLabel]="true" [(ngModel)]="freqStartPosition" min="0" max="100" step="10" tickInterval="10">
+            </mat-slider>
+            {{ fStartPosition }}
+        </mat-card-content>
+    </mat-card>
+    <mat-card>
+            <mat-card-title>Show translation before training</mat-card-title>
+            <mat-card-content>
+                <mat-slide-toggle [(ngModel)]="showTranslation"></mat-slide-toggle>
+                {{ sTranslation ? 'yes' : 'no' }}
+            </mat-card-content>
+        </mat-card>    
+    <mat-card>
+    <mat-card-title></mat-card-title>
+        <mat-card-content>
+            <button mat-raised-button [disabled]="btnSaveDisabled" (click)="save()">Save</button>
         </mat-card-content>
     </mat-card>
 </div>

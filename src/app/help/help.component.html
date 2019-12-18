@@ -5,11 +5,55 @@
   </button>
 </div>
 <div class="container-fluid" ngbAutofocus>
-	<div class="row">
-		<div class="col-md-12">
-			<p>
-				Lorem ipsum dolor sit amet, <strong>consectetur adipiscing elit</strong>. Aliquam eget sapien sapien. Curabitur in metus urna. In hac habitasse platea dictumst. Phasellus eu sem sapien, sed vestibulum velit. Nam purus nibh, lacinia non faucibus et, pharetra in dolor. Sed iaculis posuere diam ut cursus. <em>Morbi commodo sodales nisi id sodales. Proin consectetur, nisi id commodo imperdiet, metus nunc consequat lectus, id bibendum diam velit et dui.</em> Proin massa magna, vulputate nec bibendum nec, posuere nec lacus. <small>Aliquam mi erat, aliquam vel luctus eu, pharetra quis elit. Nulla euismod ultrices massa, et feugiat ipsum consequat eu.</small>
-			</p>
-		</div>
-	</div>
+  <div class="row">
+    <div class="col-md-12">
+      <p>
+        Lorem ipsum dolor sit amet, <strong>consectetur adipiscing elit</strong>. Aliquam eget sapien sapien. Curabitur
+        in metus urna. In hac habitasse platea dictumst. Phasellus eu sem sapien, sed vestibulum velit. Nam purus nibh,
+        lacinia non faucibus et, pharetra in dolor. Sed iaculis posuere diam ut cursus. <em>Morbi commodo sodales nisi
+          id sodales. Proin consectetur, nisi id commodo imperdiet, metus nunc consequat lectus, id bibendum diam velit
+          et dui.</em> Proin massa magna, vulputate nec bibendum nec, posuere nec lacus. <small>Aliquam mi erat, aliquam
+          vel luctus eu, pharetra quis elit. Nulla euismod ultrices massa, et feugiat ipsum consequat eu.</small>
+      </p>
+    </div>
+  </div>
 </div>
+
+<ngb-accordion #acc="ngbAccordion">
+  <ngb-panel title="Feed back">
+    <ng-template ngbPanelContent>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+            <form role="form" (ngSubmit)="onSubmit()">
+              <div class="form-group">
+                <label for="exampleInputEmail1">
+                  Email address
+                </label>
+                <input type="email" class="form-control" id="exampleInputEmail1" [formControl]="email"
+                  [readonly]="isEmailReadonly" />
+              </div>
+              <div class="form-group">
+                <label for="messageText">
+                  Message text
+                </label>
+                <textarea class="form-control" id="messageText" [formControl]="message"></textarea>
+              </div>
+
+              <div class="container">
+                <div class="row">
+                  <div class="col col-xs-8 col-md-8">
+                      <button><span *ngIf="showSent"> Message has sent </span></button>
+                  </div>
+                  <button class="col btn-primary col-xs-4 col-md-4" [disabled]="btnSabmitDisabled" type="submit"> Send </button>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ngb-panel>
+
+</ngb-accordion>

@@ -274,10 +274,27 @@ async function trainingLoopInit(req, res) {
 
   var langPair = JSON.parse(userInfo['preferences']).langPair;
   var loopSize = JSON.parse(userInfo['preferences']).wordsPerLoop;
+  var freqStartPosition = JSON.parse(userInfo['preferences']).freqStartPosition;
+  var showTranslation = JSON.parse(userInfo['preferences']).showTranslation;
+  
+
   console.log('langPair: ' + langPair);
   var lang_of_learn = langPair.split('-')[0];
   var lang_of_translate = langPair.split('-')[1];
   console.log('lang_of_learn: ' + lang_of_learn + " lang_of_translate: " + lang_of_translate);
+
+  var wordsMaxCntData = await db.getAsync(`
+  select count(*) wordsMaxCnt
+    from word w
+    where w.lang = ? 
+    `, [lang_of_learn]);
+
+  console.log('wordsMaxCnt: ' + wordsMaxCntData.wordsMaxCnt);
+
+  var offset = Math.round(freqStartPosition * wordsMaxCntData.wordsMaxCnt / 100);
+
+  console.log('offset: ' + offset);
+
 
   var blockRows1 = await db.allAsync(`
         select w.*, wt.id wt_id, wt.word wt_word, wt.lang wt_lang 
@@ -285,7 +302,7 @@ async function trainingLoopInit(req, res) {
           join user_progress up on up.word_id = w.id and up.cnt_error > up.cnt_success
           join word wt on w.link_id = wt.link_id and wt.lang = ?
           where w.lang = ? and up.user_id = ?
-          order by wt.frequency
+          order by wt.frequency desc
           limit ?
           `, [lang_of_translate, lang_of_learn, userInfo['id'], loopSize]);
 
@@ -300,9 +317,9 @@ async function trainingLoopInit(req, res) {
           select up.word_id 
           from user_progress up 
           where up.user_id = ?)
-          order by wt.frequency
-        limit ?
-        `, [lang_of_translate, lang_of_learn, userInfo['id'], restLimit]);
+          order by wt.frequency desc
+        limit ? offset ?
+        `, [lang_of_translate, lang_of_learn, userInfo['id'], restLimit, offset]);
 
   var blockRows = new Set([...blockRows1, ...blockRows2]);
 
@@ -322,6 +339,8 @@ async function trainingLoopInit(req, res) {
       }
     });
   });
+  
+  trainingLoop.showTranslation = showTranslation;
   res.json(trainingLoop);
 
 

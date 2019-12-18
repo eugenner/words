@@ -13,9 +13,6 @@ import {
   // ...
 } from '@angular/animations';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { AppComponent } from '../app.component';
-import { StatisticsComponent } from '../statistics/statistics.component';
 
 @Component({
   selector: 'app-training',
@@ -53,6 +50,13 @@ import { StatisticsComponent } from '../statistics/statistics.component';
         animate('0.1s')
       ])
     ]),
+    trigger('hideTable', [
+      state('start', style({ opacity: 0 })),
+      state('stop', style({ opacity: 1 })),
+      transition('stop => start', [
+        animate('0.8s')
+      ])
+    ]),
   ],
 })
 export class TrainingComponent implements OnInit {
@@ -68,34 +72,34 @@ export class TrainingComponent implements OnInit {
   showStatistics = false;
   statIndex: number;
 
+  hideLearning = 'stop';
+
+  showTranslation = false;
+  showTraining = false;
+
   constructor(private trainingService: TrainingService, private router: Router, private ngZone: NgZone) {
 
   }
-
-  // ngAfterViewInit() {
-  //   this.router.events
-  //     .pipe(filter(event => event instanceof NavigationEnd))
-  //     .subscribe(() => {
-  //       if (this.router.url === '/training') {
-  //         console.log('navigation end: ' + this.router.url);
-  //         this.ngZone.run(() => {
-  //           setTimeout(() => {
-  //             AppComponent.isNavbarCollapsed = true;
-  //           }, 500);
-  //         });
-  //       }
-  //     });
-  // }
 
   ngOnInit() {
     this.nextTrainingLoop();
     this.progress = 0;
   }
 
+  // end of learning table animation
+  hideTableEnd(event: any) {
+    console.log('hideTableEnd: ' + JSON.stringify(event));
+    if (event['toState'] === 'start' && event['fromState'] === 'stop') {
+      this.showTranslation = false;
+      this.showTraining = true;
+      this.hideLearning = 'stop';
+    }
+
+  }
+
   // show animation on the right answer
   onTranslateClick(word: any): void {
     if (word.link_id === this.currentAnswerWord.link_id) {
-      // TODO animation
       word.applaud = 'start';
       this.answerApplaud = 'start';
       setTimeout(() => this.onTranslate(word), 1000);
@@ -173,9 +177,22 @@ export class TrainingComponent implements OnInit {
   nextTrainingLoop() {
     this.indexOfLeariningWord = -1;
     this.progress = 0;
+    this.showTraining = false;
+    this.showTranslation = false;
     this.trainingService.getTrainingLoop().subscribe(
       (el) => {
         this.trainingLoop = el;
+        if (this.trainingLoop.showTranslation) {
+          this.showTraining = false;
+          this.showTranslation = true;
+        } else {
+          this.showTraining = true;
+          this.showTranslation = false;
+        }
+
+        console.log('showTranslation: ' + this.showTranslation);
+        console.log('showTraining: ' + this.showTraining);
+
         this.tlMaxCount = this.trainingLoop.trainingSets.length;
         this.nextWord();
       },

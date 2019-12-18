@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
 var checkIfAuthenticated = require('../auth-middleware');
+var admin = require('../firebase-service');
 
 
 // Promise helper
@@ -135,6 +136,62 @@ router.get('/userUid/:userUid', function(req, res, next) {
 
 
 });
+
+
+// save User? message
+router.post('/message', function (req, res) {
+  saveUserMessage(req, res);
+});
+
+async function saveUserMessage(req, res) {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.split(' ')[0] === 'Bearer'
+  ) {
+    req.authToken = req.headers.authorization.split(' ')[1];
+  } else {
+    req.authToken = null;
+  }
+
+  const { email, message } = req.body;
+  var data = {};
+  try {
+    const userInfo = await admin.auth().verifyIdToken(req.authToken);
+
+    console.log('userInfo: ' + JSON.stringify(userInfo));
+
+    data = {email: userInfo['email'], userUid: userInfo['user_id'], message: message};
+    
+  } catch (e) {
+    console.log('saveUserMessage error: ' + JSON.stringify(e));
+    // user is not logged
+    // TODO validate email
+    data = {email: email, userUid: null, message: message};
+    
+  }
+
+  console.log('saveUserMessage: userUid: ' + JSON.stringify(data));
+  let db = new sqlite3.Database('./word.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Connected to the chinook database.');
+  });
+
+  // TODO use in-memory database for refreshTokens store
+  db = AwaitAsyncPromiseHelper(db);
+
+  var newId = await db.runAsync(`INSERT INTO feed_back(google_uid, email, message) VALUES(?, ?, ?)`, 
+    [data.userUid, data.email, data.message]);
+
+  if(newId) {
+    res.json({result: 'ok'});
+  } else {
+    res.json({result: 'error'});
+  }
+  close(db);
+}
+
 
 async function createUpdateUser(req, res) {
   var userUid = req.authId;

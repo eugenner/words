@@ -1,56 +1,63 @@
-<div class="container-fluid mt-3">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="progress">
-        <div class="progress-bar" [ngStyle]="{'width.%': progress}">
-        </div>
-      </div>
-    </div>
-  </div>
+<div *ngIf="showTranslation" [@hideTable]="hideLearning" (@hideTable.done)="hideTableEnd($event)">
+  <app-learning  [tl]="trainingLoop"
+    (changeValue)="hideLearning = 'start'">
+  </app-learning>
 </div>
-<div *ngIf="showStatistics">
-  <app-statistics [stIndex]="statIndex"></app-statistics>
-</div>
-<div class="container">
-  <div class="row">
-    <div class="col"></div>
-    <div class="col-md-auto col-lg-auto d-flex justify-content-center">
-      <div *ngIf="trainingLoop" class="pt-3">
-        <div class="alert alert-primary" role="alert" *ngIf="trainingLoop.trainingSets.length !== 0">Cards to
-          learn
-          <span class="badge badge-light">{{ trainingLoop.trainingSets.length }}</span>
-        </div>
-        <button type="button" class="btn btn-md" *ngIf="trainingLoop.trainingSets.length === 0">
-          <button (click)="onContinueClick()">Continue</button>
-        </button>
-      </div>
-    </div>
-    <div class="col"></div>
-  </div>
-  <div class="row" *ngIf="trainingLoop && trainingLoop.trainingSets.length !== 0">
-    <div class="col"></div>
-    <div class="col-sm-12 col-lg-auto">
-      <div class="card">
-        <h3 class="card-header">
-          <div *ngIf="currentMemoryWord" style="text-align: center;">
-            <button type="button" class="btn btn-outline-secondary mr-2" placement="right" triggers="click:blur"
-              ngbTooltip="{{currentAnswerWord.word}}" [@applaud]="answerApplaud">
-              {{ currentMemoryWord.word }}
-            </button>
-          </div>
-        </h3>
-        <div class="card-body">
-          <div class="list-group" *ngIf="screenAnswers">
-            <button *ngFor="let screenAnswer of screenAnswers; index as i" (click)="onTranslateClick(screenAnswer)"
-              id="{{i}}" [@applaud]="screenAnswer.applaud"
-              [@shake]="screenAnswer.state">{{ screenAnswer.word }}</button>
+<div *ngIf="trainingLoop && showTraining">
+  <div class="container-fluid mt-3">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="progress">
+          <div class="progress-bar" [ngStyle]="{'width.%': progress}">
           </div>
         </div>
       </div>
     </div>
-    <div class="col"></div>
   </div>
+  <div *ngIf="showStatistics">
+    <app-statistics [stIndex]="statIndex"></app-statistics>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col"></div>
+      <div class="col-md-auto col-lg-auto d-flex justify-content-center">
+        <div *ngIf="trainingLoop" class="pt-3">
+          <div class="alert alert-primary" role="alert" *ngIf="trainingLoop.trainingSets.length !== 0">Cards to
+            learn
+            <span class="badge badge-light">{{ trainingLoop.trainingSets.length }}</span>
+          </div>
+          <button type="button" class="btn btn-md" *ngIf="trainingLoop.trainingSets.length === 0">
+            <button (click)="onContinueClick()">Continue</button>
+          </button>
+        </div>
+      </div>
+      <div class="col"></div>
+    </div>
+    <div class="row" *ngIf="trainingLoop && trainingLoop.trainingSets.length !== 0">
+      <div class="col"></div>
+      <div class="col-sm-12 col-lg-auto">
+        <div class="card">
+          <h3 class="card-header">
+            <div *ngIf="currentMemoryWord" style="text-align: center;">
+              <button type="button" class="btn btn-outline-secondary mr-2" placement="right" triggers="click:blur"
+                ngbTooltip="{{currentAnswerWord.word}}" [@applaud]="answerApplaud">
+                {{ currentMemoryWord.word }}
+              </button>
+            </div>
+          </h3>
+          <div class="card-body">
+            <div class="list-group" *ngIf="screenAnswers">
+              <button *ngFor="let screenAnswer of screenAnswers; index as i" (click)="onTranslateClick(screenAnswer)"
+                id="{{i}}" [@applaud]="screenAnswer.applaud"
+                [@shake]="screenAnswer.state">{{ screenAnswer.word }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col"></div>
+    </div>
 
 
 
+  </div>
 </div>

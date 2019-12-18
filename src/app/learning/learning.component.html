@@ -1,0 +1,19 @@
+<div *ngIf="tl && tl.trainingSets.length > 0" class="container pt-3">
+    <div class="container mt-3">
+        <table class="table table-bordered table-striped text-center">
+            <thead>
+            </thead>
+            <tbody>
+                <tr *ngFor="let ts of tl.trainingSets">
+                    <td>{{ ts.memoryWord.word }}</td>
+                    <td>{{ ts.correctAnswer.word }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row justify-content-center">
+        <button class="btn btn-primary" (click)="start()">
+            Start
+        </button>
+    </div>
+</div>
