@@ -11,7 +11,7 @@ export class SettingsComponent implements OnInit {
   fAnswers = 0;
   fStartPosition = 0;
   fLangCouple = null;
-  langCouples = ['ru-en', 'en-ru'];
+  langCouples = ['ru-en', 'en-ru', 'it-ru', 'ru-it'];
   sTranslation = false;
   btnSaveDisabled = true;
 
