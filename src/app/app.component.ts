@@ -11,6 +11,7 @@ export class AppComponent {
 
   isNavbarCollapsed: boolean; //class="collapse navbar-collapse"
   navBarClassList = 'collapse navbar-collapse';
+  title = 'words';
 
   constructor(private modalService: NgbModal) {}
 
