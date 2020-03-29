@@ -76,6 +76,7 @@ export class TrainingComponent implements OnInit {
 
   showTranslation = false;
   showTraining = false;
+  isWordProcessing = false;
 
   constructor(private trainingService: TrainingService, private router: Router, private ngZone: NgZone) {
 
@@ -99,6 +100,10 @@ export class TrainingComponent implements OnInit {
 
   // show animation on the right answer
   onTranslateClick(word: any): void {
+    if (this.isWordProcessing) 
+      return;
+    this.isWordProcessing = true;
+
     if (word.link_id === this.currentAnswerWord.link_id) {
       word.applaud = 'start';
       this.answerApplaud = 'start';
@@ -169,6 +174,7 @@ export class TrainingComponent implements OnInit {
           word.applaud = 'stop';
           this.screenAnswers.push(word);
         });
+        this.isWordProcessing = false;
       }
     );
 
@@ -215,7 +221,7 @@ export class TrainingComponent implements OnInit {
     }
     this.currentMemoryWord = this.trainingLoop.trainingSets[this.indexOfLeariningWord].memoryWord;
     this.currentAnswerWord = this.trainingLoop.trainingSets[this.indexOfLeariningWord].correctAnswer;
-    this.setAnswers(this.currentAnswerWord);
+    this.setAnswers(this.currentAnswerWord);    
   }
 
   shuffle(a: Array<any>) {
